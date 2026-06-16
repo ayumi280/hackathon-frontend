@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { api } from '../api/client';
 import { useAuth } from '../hooks/useAuth';
 import { ItemCard } from '../components/ItemCard';
@@ -99,19 +99,27 @@ export function ProfilePage() {
           </div>
         </div>
 
-        {/* フォローボタン（自分以外） */}
+        {/* フォロー・メッセージボタン（自分以外） */}
         {me && !isMe && (
-          <button
-            onClick={handleFollow}
-            disabled={followLoading}
-            className={`w-full mt-4 py-2.5 rounded-xl font-medium text-sm transition-colors ${
-              is_following
-                ? 'border border-gray-200 text-gray-600 hover:bg-gray-50'
-                : 'bg-pink-500 text-white hover:bg-pink-600'
-            } disabled:opacity-50`}
-          >
-            {followLoading ? '...' : is_following ? 'フォロー中' : 'フォローする'}
-          </button>
+          <div className="flex gap-2 mt-4">
+            <button
+              onClick={handleFollow}
+              disabled={followLoading}
+              className={`flex-1 py-2.5 rounded-xl font-medium text-sm transition-colors ${
+                is_following
+                  ? 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                  : 'bg-pink-500 text-white hover:bg-pink-600'
+              } disabled:opacity-50`}
+            >
+              {followLoading ? '...' : is_following ? 'フォロー中' : 'フォローする'}
+            </button>
+            <Link
+              to={`/messages/${user.id}`}
+              className="flex-1 py-2.5 rounded-xl font-medium text-sm text-center border border-gray-200 text-gray-600 hover:bg-gray-50"
+            >
+              メッセージを送る
+            </Link>
+          </div>
         )}
       </div>
 

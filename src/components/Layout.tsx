@@ -1,5 +1,5 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { Home, PlusSquare, User, LogOut, Search } from 'lucide-react';
+import { Home, PlusSquare, User, LogOut, Search, MessageCircle } from 'lucide-react';
 import { useState } from 'react';
 import type { User as UserType } from '../types';
 
@@ -72,6 +72,12 @@ export function Layout({ user }: Props) {
             <Home size={22} />
             <span className="text-xs">ホーム</span>
           </Link>
+          {user && (
+            <Link to="/messages" className="flex flex-col items-center gap-0.5 text-gray-600 hover:text-pink-500">
+              <MessageCircle size={22} />
+              <span className="text-xs">メッセージ</span>
+            </Link>
+          )}
           {user && (
             <Link to="/post" className="flex flex-col items-center gap-0.5">
               <div className="bg-pink-500 rounded-full p-2">

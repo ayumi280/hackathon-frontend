@@ -76,6 +76,23 @@ export interface Transaction {
   created_at: string;
 }
 
+export interface Message {
+  id: number;
+  sender_id: number;
+  sender: User;
+  receiver_id: number;
+  receiver: User;
+  content: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface Conversation {
+  partner: User;
+  last_message: Message;
+  unread_count: number;
+}
+
 export interface AIAssistResult {
   title: string;
   description: string;
