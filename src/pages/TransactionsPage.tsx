@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, Star, Building2, Smartphone, Store, CheckCircle2, Circle, Truck, Package, MapPin } from 'lucide-react';
+import { ChevronLeft, Star, Building2, Smartphone, Store, CheckCircle2, Truck, Package, MapPin } from 'lucide-react';
 import { api } from '../api/client';
 import { useAuth } from '../hooks/useAuth';
 import type { Transaction } from '../types';
