@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Heart, Share2, ChevronLeft, ShoppingBag, MessageCircle } from 'lucide-react';
+import { Heart, Share2, ChevronLeft, ShoppingBag, MessageCircle, Building2, Smartphone, Store, X } from 'lucide-react';
 import { api } from '../api/client';
 import { useAuth } from '../hooks/useAuth';
 import { OfferModal } from '../components/OfferModal';
-import type { Item } from '../types';
+import type { Item, PaymentMethod } from '../types';
 
 export function ItemDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -15,6 +15,8 @@ export function ItemDetailPage() {
   const [loading, setLoading] = useState(true);
   const [imageIndex, setImageIndex] = useState(0);
   const [showOfferModal, setShowOfferModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('bank');
   const [buying, setBuying] = useState(false);
 
   useEffect(() => {
@@ -37,12 +39,12 @@ export function ItemDetailPage() {
   const handleBuy = async () => {
     if (!user) { navigate('/login'); return; }
     if (!item || buying) return;
-    if (!confirm(`¥${item.price.toLocaleString()} で購入しますか？`)) return;
     setBuying(true);
     try {
-      await api.post(`/items/${item.id}/buy`);
+      await api.post(`/items/${item.id}/buy`, { payment_method: paymentMethod });
+      setShowPaymentModal(false);
       alert('購入しました！取引ページを確認してください。');
-      navigate('/');
+      navigate('/transactions');
     } catch (e: unknown) {
       const msg = (e as { response?: { data?: { message?: string } } }).response?.data?.message;
       alert(msg || '購入に失敗しました');
@@ -174,12 +176,11 @@ export function ItemDetailPage() {
                 オファー
               </button>
               <button
-                onClick={handleBuy}
-                disabled={buying}
-                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-pink-500 text-white font-bold text-sm hover:bg-pink-600 disabled:opacity-50 transition-colors"
+                onClick={() => { if (!user) navigate('/login'); else setShowPaymentModal(true); }}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-pink-500 text-white font-bold text-sm hover:bg-pink-600 transition-colors"
               >
                 <ShoppingBag size={18} />
-                {buying ? '購入中...' : '今すぐ購入'}
+                今すぐ購入
               </button>
             </>
           )}
@@ -199,6 +200,67 @@ export function ItemDetailPage() {
           onClose={() => setShowOfferModal(false)}
           onSuccess={() => { setShowOfferModal(false); alert('オファーを送りました！'); }}
         />
+      )}
+
+      {/* 支払い方法選択モーダル */}
+      {showPaymentModal && item && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowPaymentModal(false)} />
+          <div className="relative bg-white rounded-t-3xl px-5 pt-5 pb-8 shadow-xl">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-base font-bold text-gray-800">お支払い方法を選択</h2>
+              <button onClick={() => setShowPaymentModal(false)}>
+                <X size={20} className="text-gray-400" />
+              </button>
+            </div>
+
+            {/* 購入金額 */}
+            <div className="bg-gray-50 rounded-2xl px-4 py-3 mb-4 flex items-center justify-between">
+              <span className="text-sm text-gray-500">{item.title}</span>
+              <span className="text-lg font-bold text-gray-900">¥{item.price.toLocaleString()}</span>
+            </div>
+
+            {/* 支払い方法選択肢 */}
+            <div className="space-y-2 mb-5">
+              {([
+                { value: 'bank',        label: '銀行振り込み',    sub: '三井住友・みずほ・ゆうちょ等', Icon: Building2, color: 'text-blue-500',  bg: 'bg-blue-50'  },
+                { value: 'paypay',      label: 'PayPay',          sub: 'QRコードで簡単支払い',         Icon: Smartphone, color: 'text-red-500',  bg: 'bg-red-50'   },
+                { value: 'convenience', label: 'コンビニ払い',    sub: 'セブン・ファミマ・ローソン等', Icon: Store,      color: 'text-green-600', bg: 'bg-green-50' },
+              ] as const).map(({ value, label, sub, Icon, color, bg }) => (
+                <button
+                  key={value}
+                  onClick={() => setPaymentMethod(value)}
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 transition-colors text-left ${
+                    paymentMethod === value
+                      ? 'border-pink-400 bg-pink-50'
+                      : 'border-gray-100 bg-white hover:border-gray-200'
+                  }`}
+                >
+                  <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center shrink-0`}>
+                    <Icon size={20} className={color} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-800">{label}</p>
+                    <p className="text-xs text-gray-400">{sub}</p>
+                  </div>
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                    paymentMethod === value ? 'border-pink-500 bg-pink-500' : 'border-gray-300'
+                  }`}>
+                    {paymentMethod === value && <div className="w-2 h-2 rounded-full bg-white" />}
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={handleBuy}
+              disabled={buying}
+              className="w-full py-3.5 rounded-2xl bg-pink-500 text-white font-bold text-sm hover:bg-pink-600 disabled:opacity-50 transition-colors"
+            >
+              {buying ? '処理中...' : `¥${item.price.toLocaleString()} で購入する`}
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

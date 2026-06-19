@@ -62,6 +62,7 @@ export interface Offer {
 }
 
 export type TransactionStatus = 'pending' | 'shipping' | 'completed' | 'canceled';
+export type PaymentMethod = 'bank' | 'paypay' | 'convenience';
 
 export interface Transaction {
   id: number;
@@ -73,6 +74,7 @@ export interface Transaction {
   seller: User;
   final_price: number;
   status: TransactionStatus;
+  payment_method: PaymentMethod;
   created_at: string;
 }
 
