@@ -8,6 +8,7 @@ import { PostItemPage } from './pages/PostItemPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { MessagesPage } from './pages/MessagesPage';
 import { ChatPage } from './pages/ChatPage';
+import { TransactionsPage } from './pages/TransactionsPage';
 import { Layout } from './components/Layout';
 
 function App() {
@@ -41,6 +42,10 @@ function App() {
           <Route
             path="/messages/:id"
             element={user ? <ChatPage /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/transactions"
+            element={user ? <TransactionsPage /> : <Navigate to="/login" />}
           />
         </Route>
       </Routes>

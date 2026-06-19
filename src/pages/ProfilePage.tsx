@@ -99,6 +99,18 @@ export function ProfilePage() {
           </div>
         </div>
 
+        {/* 自分のプロフィール：取引履歴リンク */}
+        {isMe && (
+          <div className="mt-4">
+            <Link
+              to="/transactions"
+              className="block w-full py-2.5 rounded-xl border border-gray-200 text-gray-700 text-sm font-medium text-center hover:bg-gray-50 transition-colors"
+            >
+              取引履歴を見る
+            </Link>
+          </div>
+        )}
+
         {/* フォロー・メッセージボタン（自分以外） */}
         {me && !isMe && (
           <div className="flex gap-2 mt-4">
