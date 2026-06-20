@@ -204,9 +204,9 @@ export function ItemDetailPage() {
 
       {/* 支払い方法選択モーダル */}
       {showPaymentModal && item && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end">
+        <div className="fixed inset-0 z-50 flex flex-col justify-end items-center">
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowPaymentModal(false)} />
-          <div className="relative bg-white rounded-t-3xl px-5 pt-5 pb-8 shadow-xl">
+          <div className="relative w-full max-w-md bg-white rounded-t-3xl px-5 pt-5 pb-8 shadow-xl">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-bold text-gray-800">お支払い方法を選択</h2>
               <button onClick={() => setShowPaymentModal(false)}>
