@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Heart, Share2, ChevronLeft, ShoppingBag, MessageCircle, Building2, Smartphone, Store, X } from 'lucide-react';
+import { Heart, Share2, ChevronLeft, ShoppingBag, MessageCircle, Building2, Smartphone, Store, X, Sparkles, Send } from 'lucide-react';
 import { api } from '../api/client';
 import { useAuth } from '../hooks/useAuth';
 import { OfferModal } from '../components/OfferModal';
@@ -18,6 +18,10 @@ export function ItemDetailPage() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('bank');
   const [buying, setBuying] = useState(false);
+
+  const [qaQuestion, setQaQuestion] = useState('');
+  const [qaAnswer, setQaAnswer] = useState('');
+  const [qaLoading, setQaLoading] = useState(false);
 
   useEffect(() => {
     api.get<Item>(`/items/${id}`)
@@ -60,6 +64,23 @@ export function ItemDetailPage() {
     } else {
       await navigator.clipboard.writeText(url);
       alert('URLをコピーしました');
+    }
+  };
+
+  const handleQa = async () => {
+    if (!item || !qaQuestion.trim() || qaLoading) return;
+    setQaLoading(true);
+    setQaAnswer('');
+    try {
+      const res = await api.post<{ answer: string }>('/ai/qa', {
+        item_id: item.id,
+        question: qaQuestion,
+      });
+      setQaAnswer(res.data.answer);
+    } catch {
+      setQaAnswer('回答の取得に失敗しました。もう一度お試しください。');
+    } finally {
+      setQaLoading(false);
     }
   };
 
@@ -154,6 +175,41 @@ export function ItemDetailPage() {
             <p className="text-sm text-gray-600 whitespace-pre-line leading-relaxed">{item.description}</p>
           </div>
         )}
+
+        {/* AIに質問 */}
+        <div className="mb-4 bg-purple-50 rounded-2xl p-4">
+          <div className="flex items-center gap-1.5 mb-3">
+            <Sparkles size={14} className="text-purple-500" />
+            <h3 className="text-sm font-semibold text-purple-700">AIに質問する</h3>
+            <span className="text-xs text-purple-400">商品情報をもとに自動回答</span>
+          </div>
+          <div className="flex gap-2">
+            <input
+              value={qaQuestion}
+              onChange={(e) => setQaQuestion(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleQa()}
+              placeholder="例：サイズ感はどうですか？"
+              className="flex-1 bg-white border border-purple-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 placeholder:text-gray-400"
+            />
+            <button
+              onClick={handleQa}
+              disabled={qaLoading || !qaQuestion.trim()}
+              className="px-3 py-2 bg-purple-500 text-white rounded-xl hover:bg-purple-600 disabled:opacity-40 transition-colors"
+            >
+              {qaLoading ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Send size={15} />
+              )}
+            </button>
+          </div>
+          {qaAnswer && (
+            <div className="mt-3 bg-white rounded-xl px-3 py-2.5 border border-purple-100">
+              <p className="text-xs text-purple-500 font-medium mb-1">AI回答</p>
+              <p className="text-sm text-gray-700 leading-relaxed">{qaAnswer}</p>
+            </div>
+          )}
+        </div>
 
         {/* アクションバー */}
         <div className="flex gap-2 items-center mt-4">
